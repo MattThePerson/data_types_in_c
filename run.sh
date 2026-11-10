@@ -7,7 +7,7 @@ set -euo pipefail
 
 target=run
 if [[ ${1:-} == -t ]]; then
-    target=tidyrun
+    target=cleanrun
     shift
 fi
 

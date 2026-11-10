@@ -34,7 +34,7 @@ trap 'rm -f "$err"' EXIT
 
 for f in "${files[@]}"; do
     name=${f%.c}
-    if make -s "run/$name" >/dev/null 2>"$err"; then
+    if make -s "cleanrun/$name" >/dev/null 2>"$err"; then
         echo "PASS  $name"
         ((pass++))
     else

@@ -4,7 +4,8 @@
 CC = clang
 # CFLAGS  = -std=c99 -g -Wall -Wextra -Werror
 CFLAGS = -std=c99 -g -Wall -Wextra
-DEPFLAGS = -MMD -MP
+# DEPFLAGS = -MMD -MP
+DEPFLAGS =
 DISTDIR = dist
 
 # = RUN ======================
