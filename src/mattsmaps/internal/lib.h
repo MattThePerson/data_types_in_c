@@ -11,6 +11,7 @@ typedef MAP_KEY_T mkey_t;
 #endif
 typedef MAP_VAL_T mval_t;
 
+// NOTE: should not return 0
 static inline int _hsh(mkey_t k) {
     k *= 3;
     return k;

@@ -12,6 +12,7 @@
 #include "internal/api.h"
 #include "internal/lib.h"
 #include <stddef.h>
+#include <stdio.h>
 
 typedef struct {
     mkey_t key;
@@ -38,14 +39,14 @@ typedef struct MapIterator {
 MapIterator map_iter();
 int map_iter_next(MapIterator *i);
 
-#endif // MATTSMAPS_HASHTABLE_H
+// #endif // MATTSMAPS_HASHTABLE_H
 
 // ===============================================
 // Library
 // ===============================================
 
-#define INCLUDE_MATTSMAPS_HASHTABLE // NOTE: dev
-#ifdef INCLUDE_MATTSMAPS_HASHTABLE
+// #define INCLUDE_MATTSMAPS_HASHTABLE // NOTE: dev
+// #ifdef INCLUDE_MATTSMAPS_HASHTABLE
 
 #include <stdlib.h>
 
@@ -70,7 +71,7 @@ HashTable *_ht_init(int len, float upsize_perc) {
 
 Bucket *_ht_get_bucket(HashTable *ht, mkey_t k) {
     Bucket *b;
-    size_t idx = ht->_len % _hsh(k);
+    size_t idx = (size_t)_hsh(k) % ht->_len;
     b = &ht->start[idx];
     while (b->key != k) {
         if (b->key == 0) {
@@ -86,7 +87,7 @@ Bucket *_ht_get_bucket(HashTable *ht, mkey_t k) {
 
 Bucket *_ht_get_empty_bucket(HashTable *ht, mkey_t k) {
     Bucket *b;
-    size_t idx = ht->_len % _hsh(k);
+    size_t idx = (size_t)_hsh(k) % ht->_len;
     b = &ht->start[idx];
     while (b->key != 0) {
         b = &ht->start[idx++];
@@ -122,6 +123,7 @@ void map_set(Store *s, mkey_t k, mval_t v) {
     Bucket *b = _ht_get_empty_bucket(s, k);
     b->key = k;
     b->val = v;
+    (s->size)++;
     // check fill
     float fill_perc = (float)s->size / (float)s->_len;
     if (fill_perc >= s->_upsize_perc) {

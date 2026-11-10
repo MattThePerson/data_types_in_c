@@ -47,25 +47,32 @@ struct Store {
 // Helpers
 // =================
 
+void _node_free(BSTNode *n) {
+    printf("[NOT IMPLEMENTED] key=%d\n", n->key);
+    // TODO:
+}
+
 // =================
 // API
 // =================
 
 Store *map_init() {
-    BSTNode *node;
-    node = (BSTNode *)calloc(1, sizeof(BSTNode));
-    return node;
+    Store *s;
+    s = (Store *)calloc(1, sizeof(Store));
+    return s;
 }
 
-void map_free(Store *node) {
-    if (node == NULL) {
+void map_free(Store *s) {
+    if (s == NULL) {
         return;
     }
-    map_free(node->left);
-    map_free(node->right);
-    free(node);
+    if (s->root != NULL) {
+        _node_free(s->root);
+    }
+    free(s);
 }
 
+/*
 // TODO: apply hash based equality
 void map_set(Store *s, mkey_t k, mval_t v) {
     if (0 == s->key || k == s->key) {
@@ -104,5 +111,7 @@ mval_t map_get(Store *s, mkey_t k) {
 //     printf("BST map_remove not yet implemented");
 //     exit(1);
 // }
+
+*/
 
 #endif // INCLUDE_MATTSMAPS_BST

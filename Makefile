@@ -1,33 +1,40 @@
 .SECONDEXPANSION:
 .SECONDARY:
-# .PRECIOUS: $(DISTDIR)/%       # keep just the binaries
-# .NOTINTERMEDIATE:             # GNU Make 4.4+, also stops Make from chaining implicit rules
 
-CC      = clang
+CC = clang
 # CFLAGS  = -std=c99 -g -Wall -Wextra -Werror
-CFLAGS  = -std=c99 -g -Wall -Wextra
+CFLAGS = -std=c99 -g -Wall -Wextra
+DEPFLAGS = -MMD -MP
 DISTDIR = dist
-EXDIR = examples
 
-run-%: $(DISTDIR)/%
-	./$<
+# = RUN ======================
 
-tidyrun-%: tidy $(DISTDIR)/%
-	./$(DISTDIR)/$*
+# make run/examples/demo_bst
+run/%: $(DISTDIR)/%
+	./$(DISTDIR)/$* $(ARGS)
 
-# Single-file example: examples/foo.c -> dist/foo
-$(DISTDIR)/%: $(EXDIR)/%.c | $(DISTDIR)
-	$(CC) $(CFLAGS) $< -o $@
+cleanrun/%: clean $(DISTDIR)/%
+	./$(DISTDIR)/$* $(ARGS)
 
-# Folder example: examples/foo/*.c -> dist/foo
-$(DISTDIR)/%: $$(wildcard $(EXDIR)/$$*/*.c) | $(DISTDIR)
-	$(CC) $(CFLAGS) $^ -o $@
+# = BUILD ====================
 
-$(DISTDIR):
-	@mkdir -p $(DISTDIR)
+# Single file: dist/examples/foo <- examples/foo.c
+$(DISTDIR)/%: %.c
+	@mkdir -p $(@D)
+	$(CC) $(CFLAGS) $(DEPFLAGS) $< -o $@
 
-tidy:
+# Folder: dist/examples/foo <- examples/foo/*.c
+$(DISTDIR)/%: $$(wildcard %/*.c)
+	@mkdir -p $(@D)
+	$(CC) $(CFLAGS) $(DEPFLAGS) $^ -o $@
+
+# include header deps (written by -MMD)
+-include $(shell find dist -name '*.d' 2>/dev/null)
+
+# = MISC =====================
+
+clean:
 	rm -rf $(DISTDIR)
 
-.PHONY: tidy
+.PHONY: clean
 

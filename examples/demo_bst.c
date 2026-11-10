@@ -9,10 +9,10 @@ int main() {
     printf("creating store\n");
     Store *s = map_init();
 
-    map_set(s, 5, 9);
-    printf("key=5 val=%d\n", map_get(s, 5));
+    // map_set(s, 5, 9);
+    // printf("key=5 val=%d\n", map_get(s, 5));
 
-    printf("creating store\n");
+    printf("freeing store\n");
     map_free(s);
     return 0;
 }
