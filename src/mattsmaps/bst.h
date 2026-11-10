@@ -9,7 +9,9 @@
 #ifndef MATTSMAPS_BST_H
 #define MATTSMAPS_BST_H
 
-#include "lib.h"
+#include "internal/api.h"
+#include "internal/lib.h"
+#include <stddef.h>
 
 typedef struct BSTNode {
     mkey_t key;
@@ -18,13 +20,16 @@ typedef struct BSTNode {
     struct BSTNode *right;
 } BSTNode;
 
-typedef BSTNode Store; // NOTE: ..
+struct Store {
+    BSTNode *root;
+    size_t size;
+};
 
-Store *map_init();
-void map_free(Store *s);
-void map_set(Store *s, mkey_t k, mval_t v);
-mval_t map_get(Store *s, mkey_t k);
-void map_remove(Store *s, mkey_t k);
+// Store *map_init();
+// void map_free(Store *s);
+// void map_set(Store *s, mkey_t k, mval_t v);
+// mval_t map_get(Store *s, mkey_t k);
+// void map_remove(Store *s, mkey_t k);
 
 #endif // MATTSMAPS_BST_H
 

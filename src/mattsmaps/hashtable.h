@@ -9,30 +9,23 @@
 #ifndef MATTSMAPS_HASHTABLE_H
 #define MATTSMAPS_HASHTABLE_H
 
-// #include "api.h"
-#include "lib.h"
+#include "internal/api.h"
+#include "internal/lib.h"
+#include <stddef.h>
 
 typedef struct {
     mkey_t key;
     mval_t val;
 } Bucket;
 
-typedef struct {
+struct Store {
     Bucket *start;
-    int len;
-    int size;
-    float resize_perc;
-} HashTable;
+    size_t size;
+    size_t _len;
+    float _upsize_perc;
+};
 
-// typedef Store HashTable;
-typedef HashTable Store;
-
-Store *map_init();
-void map_free(Store *s);
-void map_set(Store *s, mkey_t k, mval_t v);
-int map_has(Store *s, mkey_t k); // TODO: implement
-mval_t map_get(Store *s, mkey_t k);
-void map_remove(Store *s, mkey_t k);
+typedef Store HashTable;
 
 // TODO: implement
 typedef struct MapIterator {
@@ -51,7 +44,7 @@ int map_iter_next(MapIterator *i);
 // Library
 // ===============================================
 
-// #define INCLUDE_MATTSMAPS_HASHTABLE // NOTE: dev
+#define INCLUDE_MATTSMAPS_HASHTABLE // NOTE: dev
 #ifdef INCLUDE_MATTSMAPS_HASHTABLE
 
 #include <stdlib.h>
@@ -60,7 +53,7 @@ int map_iter_next(MapIterator *i);
 // Helpers
 // =================
 
-HashTable *_ht_init(int len, float resize_perc) {
+HashTable *_ht_init(int len, float upsize_perc) {
     HashTable *ht = (HashTable *)calloc(1, sizeof(HashTable));
     if (ht == NULL) {
         return NULL;
@@ -70,21 +63,21 @@ HashTable *_ht_init(int len, float resize_perc) {
         return NULL;
     }
     ht->start = b;
-    ht->len = len;
-    ht->resize_perc = resize_perc;
+    ht->_len = len;
+    ht->_upsize_perc = upsize_perc;
     return ht;
 }
 
 Bucket *_ht_get_bucket(HashTable *ht, mkey_t k) {
     Bucket *b;
-    size_t idx = ht->len % _hsh(k);
+    size_t idx = ht->_len % _hsh(k);
     b = &ht->start[idx];
     while (b->key != k) {
         if (b->key == 0) {
             return b;
         }
         b = &ht->start[idx++];
-        if (idx >= ht->len) {
+        if (idx >= ht->_len) {
             idx = 0;
         }
     }
@@ -93,11 +86,11 @@ Bucket *_ht_get_bucket(HashTable *ht, mkey_t k) {
 
 Bucket *_ht_get_empty_bucket(HashTable *ht, mkey_t k) {
     Bucket *b;
-    size_t idx = ht->len % _hsh(k);
+    size_t idx = ht->_len % _hsh(k);
     b = &ht->start[idx];
     while (b->key != 0) {
         b = &ht->start[idx++];
-        if (idx >= ht->len) {
+        if (idx >= ht->_len) {
             idx = 0;
         }
     }
@@ -130,8 +123,8 @@ void map_set(Store *s, mkey_t k, mval_t v) {
     b->key = k;
     b->val = v;
     // check fill
-    float fill_perc = (float)s->size / (float)s->len;
-    if (fill_perc >= s->resize_perc) {
+    float fill_perc = (float)s->size / (float)s->_len;
+    if (fill_perc >= s->_upsize_perc) {
         _ht_resize(s, 2.0);
     }
 }
@@ -147,19 +140,19 @@ void map_remove(Store *s, mkey_t k) {
     b->val = 0;
 }
 
-int map_has(Store *s, mkey_t k) {
-    // TODO: implement
-    return 0;
-}
+// int map_has(Store *s, mkey_t k) {
+//     // TODO: implement
+//     return 0;
+// }
 
 MapIterator map_iter() {
     MapIterator i = {0, 0, NULL, 0};
     return i;
 }
 
-int map_iter_next(MapIterator *i) {
-    // TODO: implement
-    return 0;
-}
+// int map_iter_next(MapIterator *i) {
+//     // TODO: implement
+//     return 0;
+// }
 
 #endif // INCLUDE_MATTSMAPS_HASHTABLE

@@ -9,7 +9,9 @@
 #ifndef MATTSMAPS_HASHTABLESC_H
 #define MATTSMAPS_HASHTABLESC_H
 
-#include "lib.h"
+#include "internal/api.h"
+#include "internal/lib.h"
+#include <stddef.h>
 
 typedef struct Node {
     mkey_t key;
@@ -17,20 +19,15 @@ typedef struct Node {
     struct Node *next;
 } Node;
 
-typedef struct {
+struct Store {
     Node *start;
-    int len;
-    int size;
-    float resize_perc;
-} HashTableSC;
+    size_t size;
+    size_t _len;
+    float _upsize_perc;
+};
 
-typedef HashTableSC Store;
-
-Store *map_init();
-void map_free(Store *s);
-void map_set(Store *s, mkey_t k, mval_t v);
-mval_t map_get(Store *s, mkey_t k);
-void map_remove(Store *s, mkey_t k);
+// typedef HashTableSC Store;
+typedef Store HashTableSC;
 
 #endif // MATTSMAPS_HASHTABLESC_H
 

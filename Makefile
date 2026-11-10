@@ -1,3 +1,7 @@
+.SECONDEXPANSION:
+.SECONDARY:
+# .PRECIOUS: $(DISTDIR)/%       # keep just the binaries
+# .NOTINTERMEDIATE:             # GNU Make 4.4+, also stops Make from chaining implicit rules
 
 CC      = clang
 # CFLAGS  = -std=c99 -g -Wall -Wextra -Werror
@@ -11,8 +15,13 @@ run-%: $(DISTDIR)/%
 tidyrun-%: tidy $(DISTDIR)/%
 	./$(DISTDIR)/$*
 
-$(DISTDIR)/%: $(EXDIR)/%.c $(DISTDIR)
+# Single-file example: examples/foo.c -> dist/foo
+$(DISTDIR)/%: $(EXDIR)/%.c | $(DISTDIR)
 	$(CC) $(CFLAGS) $< -o $@
+
+# Folder example: examples/foo/*.c -> dist/foo
+$(DISTDIR)/%: $$(wildcard $(EXDIR)/$$*/*.c) | $(DISTDIR)
+	$(CC) $(CFLAGS) $^ -o $@
 
 $(DISTDIR):
 	@mkdir -p $(DISTDIR)
