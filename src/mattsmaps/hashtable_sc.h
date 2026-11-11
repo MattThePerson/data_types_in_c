@@ -19,6 +19,15 @@ typedef struct Node {
     struct Node *next;
 } Node;
 
+#endif // MATTSMAPS_HASHTABLESC_H
+
+// ===============================================
+// Library
+// ===============================================
+
+// #define INCLUDE_MATTSMAPS_HASHTABLESC // NOTE: dev
+#ifdef INCLUDE_MATTSMAPS_HASHTABLESC
+
 struct Store {
     Node *start;
     size_t size;
@@ -26,18 +35,7 @@ struct Store {
     float _upsize_perc;
 };
 
-// typedef HashTableSC Store;
 typedef Store HashTableSC;
-
-#endif // MATTSMAPS_HASHTABLESC_H
-
-// ===============================================
-// Library
-// ===============================================
-
-#define INCLUDE_MATTSMAPS_HASHTABLESC // NOTE: dev
-#ifdef INCLUDE_MATTSMAPS_HASHTABLESC
-
 // =================
 // Helpers
 // =================

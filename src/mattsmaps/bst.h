@@ -20,37 +20,87 @@ typedef struct BSTNode {
     struct BSTNode *right;
 } BSTNode;
 
-struct Store {
-    BSTNode *root;
-    size_t size;
-};
-
-// Store *map_init();
-// void map_free(Store *s);
-// void map_set(Store *s, mkey_t k, mval_t v);
-// mval_t map_get(Store *s, mkey_t k);
-// void map_remove(Store *s, mkey_t k);
-
 #endif // MATTSMAPS_BST_H
 
 // ===============================================
 // Library
 // ===============================================
 
-#define INCLUDE_MATTSMAPS_BST // NOTE : dev
+// #define INCLUDE_MATTSMAPS_BST // NOTE : dev
 #ifdef INCLUDE_MATTSMAPS_BST
 
 #include <stdio.h>
 #include <stdlib.h>
 
+struct Store {
+    BSTNode *root;
+    size_t size;
+};
+
 // =================
 // Helpers
 // =================
 
-void _node_free(BSTNode *n) {
-    printf("[NOT IMPLEMENTED] key=%d\n", n->key);
-    // TODO:
+BSTNode *_node_init() {
+    BSTNode *n;
+    n = (BSTNode *)calloc(1, sizeof(BSTNode));
+    return n;
 }
+
+void _bst_free(BSTNode *n) {
+    if (n == NULL) {
+        return;
+    }
+    _bst_free(n->left);
+    _bst_free(n->right);
+    free(n);
+}
+
+// _bst_set will set set a key-value pair into a BST given a node, returns 1 if
+// new pair added, 0 if pair updated
+int _bst_set(BSTNode *node, mkey_t k, mval_t v) {
+    if (0 == node->key) {
+        node->key = k;
+        node->val = v;
+        return 1;
+    }
+    if (k == node->key) {
+        node->val = v;
+        return 0;
+    }
+    if (k < node->key) {
+        if (node->left == NULL) {
+            node->left = _node_init();
+        }
+        return _bst_set(node->left, k, v);
+    }
+    if (k > node->key) {
+        if (node->right == NULL) {
+            node->right = _node_init();
+        }
+        return _bst_set(node->right, k, v);
+    }
+    return 0;
+}
+
+mval_t _bst_get(BSTNode *node, mkey_t k) {
+    if (node == NULL) {
+        return 0;
+    }
+    if (k == node->key) {
+        return node->val;
+    } else if (k < node->key) {
+        return _bst_get(node->left, k);
+    } else if (k > node->key) {
+        return _bst_get(node->right, k);
+    }
+    return 0;
+}
+
+int _bst_has(BSTNode *node, mkey_t k) { return (_bst_get(node, k) != 0); }
+
+// TODO: implement
+// void _bst_remove(BSTNode *n, mkey_t k) {}
 
 // =================
 // API
@@ -59,6 +109,7 @@ void _node_free(BSTNode *n) {
 Store *map_init() {
     Store *s;
     s = (Store *)calloc(1, sizeof(Store));
+    s->root = NULL;
     return s;
 }
 
@@ -66,52 +117,27 @@ void map_free(Store *s) {
     if (s == NULL) {
         return;
     }
-    if (s->root != NULL) {
-        _node_free(s->root);
-    }
+    _bst_free(s->root);
     free(s);
 }
 
-/*
-// TODO: apply hash based equality
 void map_set(Store *s, mkey_t k, mval_t v) {
-    if (0 == s->key || k == s->key) {
-        s->key = k;
-        s->val = v;
-    } else if (k < s->key) {
-        if (s->left == NULL) {
-            s->left = map_init();
-        }
-        map_set(s->left, k, v);
-    } else if (k > s->key) {
-        if (s->right == NULL) {
-            s->right = map_init();
-        }
-        map_set(s->right, k, v);
+    if (s->root == NULL) {
+        s->root = _node_init();
+    }
+    if (_bst_set(s->root, k, v)) {
+        s->size++;
     }
 }
 
-// TODO: apply hash based equality
-mval_t map_get(Store *s, mkey_t k) {
-    if (s == NULL) {
-        return 0;
-    }
-    if (k == s->key) {
-        return s->val;
-    } else if (k < s->key) {
-        return map_get(s->left, k);
-    } else if (k > s->key) {
-        return map_get(s->right, k);
-    }
-    return 0;
-}
+mval_t map_get(Store *s, mkey_t k) { return _bst_get(s->root, k); }
+
+int map_has(Store *s, mkey_t k) { return _bst_has(s->root, k); }
 
 // TODO: implement
 // void map_remove(Store *s, mkey_t k) {
 //     printf("BST map_remove not yet implemented");
 //     exit(1);
 // }
-
-*/
 
 #endif // INCLUDE_MATTSMAPS_BST

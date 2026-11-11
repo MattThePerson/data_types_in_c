@@ -6,8 +6,8 @@
 // Header
 // ===============================================
 
-#ifndef MATTSMAPS_HASHTABLE_H
-#define MATTSMAPS_HASHTABLE_H
+#ifndef MATTSMAPS_HASHTABLE_OA_H
+#define MATTSMAPS_HASHTABLE_OA_H
 
 #include "internal/api.h"
 #include "internal/lib.h"
@@ -18,17 +18,6 @@ typedef struct {
     mkey_t key;
     mval_t val;
 } Bucket;
-
-struct Store {
-    Bucket *start;
-    size_t size;
-    size_t _len;
-    float _upsize_perc;
-    int _is_impure; // when removing from OA HT, need to then check all buckets
-                    // with map_get
-};
-
-typedef Store HashTable;
 
 // TODO: implement
 typedef struct MapIterator {
@@ -41,16 +30,27 @@ typedef struct MapIterator {
 MapIterator map_iter();
 int map_iter_next(MapIterator *i);
 
-#endif // MATTSMAPS_HASHTABLE_H
+#endif // MATTSMAPS_HASHTABLE_OA_H
 
 // ===============================================
 // Library
 // ===============================================
 
-#define INCLUDE_MATTSMAPS_HASHTABLE // NOTE: dev
-#ifdef INCLUDE_MATTSMAPS_HASHTABLE
+#define INCLUDE_MATTSMAPS_HASHTABLE_OA // NOTE: dev
+#ifdef INCLUDE_MATTSMAPS_HASHTABLE_OA
 
 #include <stdlib.h>
+
+struct Store {
+    Bucket *start;
+    size_t size;
+    size_t _len;
+    float _upsize_perc;
+    int _is_impure; // when removing from OA HT, need to then check all buckets
+                    // with map_get
+};
+
+typedef Store HashTable;
 
 // =================
 // Helpers
@@ -112,6 +112,7 @@ Bucket *_ht_get_empty_bucket(HashTable *ht, mkey_t k) {
 int _ht_resize(HashTable *ht, float mult) {
     Bucket *oldstart = ht->start;
     size_t newlen = (size_t)((float)ht->_len * mult);
+    printf("resizing to %zu\n", newlen);
     ht->start = (Bucket *)calloc(newlen, sizeof(Bucket));
     if (ht->start == NULL) {
         return 1;
@@ -174,6 +175,11 @@ mval_t map_get(Store *s, mkey_t k) {
     return b->val;
 }
 
+int map_has(Store *s, mkey_t k) {
+    Bucket *b = _ht_get_bucket_with_key(s, k);
+    return (b != NULL);
+}
+
 void map_remove(Store *s, mkey_t k) {
     Bucket *b = _ht_get_bucket_with_key(s, k);
     b->key = 0;
@@ -195,4 +201,4 @@ MapIterator map_iter() {
 //     return 0;
 // }
 
-#endif // INCLUDE_MATTSMAPS_HASHTABLE
+#endif // INCLUDE_MATTSMAPS_HASHTABLE_OA

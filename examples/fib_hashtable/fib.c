@@ -2,8 +2,8 @@
 
 // #define MAP_KEY_T u32
 #define MAP_VAL_T u64
-#define INCLUDE_MATTSMAPS_HASHTABLE
-#include "../../src/mattsmaps/hashtable.h"
+#define INCLUDE_MATTSMAPS_HASHTABLE_OA
+#include "../../src/mattsmaps/hashtable_oa.h"
 
 u64 calc(u32 n, Store *s) {
     if (n <= 2) {

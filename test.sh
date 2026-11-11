@@ -32,18 +32,20 @@ failed=()
 err=$(mktemp)
 trap 'rm -f "$err"' EXIT
 
+out=$(mktemp)
 for f in "${files[@]}"; do
     name=${f%.c}
-    if make -s "cleanrun/$name" >/dev/null 2>"$err"; then
+    if make -s "cleanrun/$name" >"$out" 2>"$err"; then
         echo "PASS  $name"
         ((pass++))
     else
         echo "FAIL  $name"
-        sed 's/^/    /' "$err"
         ((fail++))
         failed+=("$name")
     fi
+    sed 's/^/    /' "$out" "$err"
 done
+rm -f "$out"
 
 echo "$pass passed, $fail failed"
 ((fail == 0))
