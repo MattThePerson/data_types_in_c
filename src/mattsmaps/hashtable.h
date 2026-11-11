@@ -109,8 +109,23 @@ Bucket *_ht_get_empty_bucket(HashTable *ht, mkey_t k) {
 }
 
 // _ht_realloc reallocates memory for the HashTable when it gets fuller than 70%
-void _ht_resize(HashTable *ht, float mult) {
-    // TODO: implement
+int _ht_resize(HashTable *ht, float mult) {
+    Bucket *oldstart = ht->start;
+    size_t newlen = (size_t)((float)ht->_len * mult);
+    ht->start = (Bucket *)calloc(newlen, sizeof(Bucket));
+    if (ht->start == NULL) {
+        return 1;
+    }
+    ht->_len = newlen;
+    ht->size = 0;
+    Bucket b;
+    for (size_t i = 0; i < ht->_len; i++) {
+        b = oldstart[i];
+        if (b.key != 0) {
+            map_set(ht, b.key, b.val);
+        }
+    }
+    return 0;
 }
 
 // =================
