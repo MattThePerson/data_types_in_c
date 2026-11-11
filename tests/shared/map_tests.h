@@ -59,16 +59,16 @@ UTEST(maps, insert_1000) {
 }
 
 // TEST: stress_tests
-// UTEST(maps, insert_10000) {
-//     Store *s = map_init();
-//
-//     float PI = 3.1415926;
-//     unsigned int len = 10000;
-//
-//     for (unsigned int i = 1; i < len + 1; i++) {
-//         map_set(s, i, PI * (float)i);
-//     }
-//
-//     ASSERT_EQ(s->size, len);
-//     map_free(s);
-// }
+UTEST(maps, insert_10000) {
+    Store *s = map_init();
+
+    float PI = 3.1415926;
+    unsigned int len = 10000;
+
+    for (unsigned int i = 1; i < len + 1; i++) {
+        map_set(s, i, PI * (float)i);
+    }
+
+    ASSERT_EQ(s->size, len);
+    map_free(s);
+}
