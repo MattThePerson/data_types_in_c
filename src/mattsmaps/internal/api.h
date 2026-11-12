@@ -3,7 +3,7 @@
 
 #include "lib.h"
 
-typedef struct Store Store;
+typedef struct _store Store;
 
 Store *map_init();
 void map_free(Store *s);

@@ -32,7 +32,7 @@ typedef struct BSTNode {
 #include <stdio.h>
 #include <stdlib.h>
 
-struct Store {
+struct _store {
     BSTNode *root;
     size_t size;
 };

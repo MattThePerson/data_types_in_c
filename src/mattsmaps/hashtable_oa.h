@@ -41,7 +41,7 @@ int map_iter_next(MapIterator *i);
 
 #include <stdlib.h>
 
-struct Store {
+struct _store {
     Bucket *start;
     size_t size;
     size_t _len;
@@ -112,7 +112,7 @@ Bucket *_ht_get_empty_bucket(HashTable *ht, mkey_t k) {
 int _ht_resize(HashTable *ht, float mult) {
     Bucket *oldstart = ht->start;
     size_t newlen = (size_t)((float)ht->_len * mult);
-    printf("resizing to %zu\n", newlen);
+    printf("resizing to %zu\n", newlen); // NOTE: TEMP
     ht->start = (Bucket *)calloc(newlen, sizeof(Bucket));
     if (ht->start == NULL) {
         return 1;
@@ -126,6 +126,7 @@ int _ht_resize(HashTable *ht, float mult) {
             map_set(ht, b.key, b.val);
         }
     }
+    free(oldstart);
     return 0;
 }
 
