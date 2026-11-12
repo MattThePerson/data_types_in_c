@@ -3,7 +3,7 @@
 
 CC = clang
 # CFLAGS  = -std=c99 -g -Wall -Wextra -Werror
-CFLAGS = -std=c99 -g -Wall -Wextra
+CFLAGS = -std=c99 -g
 # DEPFLAGS = -MMD -MP
 DEPFLAGS =
 DISTDIR = dist
