@@ -40,22 +40,27 @@ void _bucket_free(Bucket *b) {
     free(b);
 }
 
-// _bucket_put will return 1 if new bucket created, 0 if bucket updated
-int _bucket_put(Bucket *b, mkey_t k, mval_t v) {
+// _bucket_put will return 1 if malloc failed
+// NOTE: leaves first bucket unused, unless k==0
+int _bucket_put(Bucket *b, mkey_t k, mval_t v, int *added_flag) {
+    assert(b != NULL && "Bucket* cannot be NULL in _bucket_put");
     if (b->key == k) {
-        b->val = v;
+        b->val = 0;
         return 0;
     }
-    if (b->next) {
-        return _bucket_put(b->next, k, v);
+    Bucket *bn = b->next;
+    if (bn == NULL) {
+        bn = calloc(1, sizeof(Bucket));
+        bn->key = k;
+        bn->val = v;
+        b->next = bn;
+        *added_flag = 1;
+        return 0;
     }
-    Bucket *bnew = calloc(1, sizeof(Bucket));
-    bnew->key = k;
-    bnew->val = v;
-    b->next = bnew;
-    return 1;
+    return _bucket_put(bn, k, v, added_flag);
 }
 
+// NOTE: consider using ptr to v
 mval_t _bucket_get(Bucket *b, mkey_t k) {
     if (b == NULL) {
         return 0;
@@ -64,6 +69,34 @@ mval_t _bucket_get(Bucket *b, mkey_t k) {
         return b->val;
     }
     return _bucket_get(b->next, k);
+}
+
+bool _bucket_has(Bucket *b, mkey_t k) {
+    if (b == NULL) {
+        return false;
+    }
+    if (b->key == k) {
+        return true;
+    }
+    return _bucket_has(b->next, k);
+}
+
+int _bucket_remove(Bucket *b, mkey_t k) {
+    Bucket *bn = b->next;
+    if (bn == NULL) {
+        return 0;
+    }
+    if (bn->key == k) {
+        b->next = bn->next;
+        free(bn);
+        return 1;
+    }
+    return _bucket_remove(bn, k);
+}
+
+size_t _get_idx(size_t len, mkey_t k) {
+    size_t hsh = (size_t)hsh_(k);
+    return hsh % len;
 }
 
 // ===============================================
@@ -84,30 +117,56 @@ size_t map_size_hashtablesc(void *s_) {
     return s->size;
 }
 
+// map_put_hashtablesc returns 1 if allocation failed
 int map_put_hashtablesc(void *s_, mkey_t k, mval_t v) {
     HashTableSCMapStore *s = s_;
-    size_t hsh = (size_t)hsh_(k);
-    size_t idx = hsh % s->_len;
+    size_t idx = _get_idx(s->_len, k);
     Bucket *b = s->array[idx];
     if (b == NULL) {
-        b = (Bucket *)calloc(1, sizeof(Bucket));
+        b = calloc(1, sizeof(Bucket));
         if (b == NULL) {
             return 1;
         }
         s->array[idx] = b;
     }
-    if (_bucket_put(b, k, v) == 1) {
-        s->size++;
+    int added = 0;
+    if (_bucket_put(b, k, v, &added) == 1) {
+        return 1;
     }
+    s->size += added;
     return 0;
 }
 
 mval_t map_get_hashtablesc(void *s_, mkey_t k) {
     HashTableSCMapStore *s = s_;
-    size_t hsh = (size_t)hsh_(k);
-    size_t idx = hsh % s->_len;
+    size_t idx = _get_idx(s->_len, k);
     Bucket *b = s->array[idx];
     return _bucket_get(b, k);
+}
+
+bool map_has_hashtablesc(void *s_, mkey_t k) {
+    HashTableSCMapStore *s = s_;
+    size_t idx = _get_idx(s->_len, k);
+    Bucket *b = s->array[idx];
+    return _bucket_has(b, k);
+}
+
+void map_remove_hashtablesc(void *s_, mkey_t k) {
+    HashTableSCMapStore *s = s_;
+    size_t idx = _get_idx(s->_len, k);
+    Bucket *b = s->array[idx];
+    if (b == NULL) {
+        return;
+    }
+    if (b->key == k) {
+        s->array[idx] = b->next;
+        free(b);
+        s->size--;
+        return;
+    }
+    if (_bucket_remove(b, k) == 1) {
+        s->size--;
+    }
 }
 
 // ===============================================
@@ -121,6 +180,8 @@ MapStore *init_map_hashtablesc() {
         .size = &map_size_hashtablesc,
         .put = &map_put_hashtablesc,
         .get = &map_get_hashtablesc,
+        .has = &map_has_hashtablesc,
+        .remove = &map_remove_hashtablesc,
     };
     HashTableSCMapStore *store = calloc(1, sizeof(HashTableSCMapStore));
     store->base.vtable = &vtable;

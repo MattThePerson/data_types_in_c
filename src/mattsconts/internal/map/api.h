@@ -1,8 +1,11 @@
 #ifndef MATTSCONTS_MAP_API_H
 #define MATTSCONTS_MAP_API_H
 
+#include <assert.h>
 #include <stdbool.h>
 #include <stddef.h>
+#include <stdio.h>
+#include <stdlib.h>
 
 #ifndef MC_MKEY_T
 #define MC_MKEY_T int
@@ -29,7 +32,7 @@ struct map_interface_ {
     int (*put)(void *s, mkey_t k, mval_t v);
     mval_t (*get)(void *s, mkey_t k);
     bool (*has)(void *s, mkey_t k);
-    void (*remove)(void *s);
+    void (*remove)(void *s, mkey_t k);
 
     void (*keys)(void *s);   // TODO: implement
     void (*values)(void *s); // TODO: implement
@@ -41,8 +44,10 @@ void map_free(MapStore *s);
 size_t map_size(MapStore *s);
 int map_put(MapStore *s, mkey_t k, mval_t v);
 mval_t map_get(MapStore *s, mkey_t k);
+bool map_has(MapStore *s, mkey_t k);
+void map_remove(MapStore *s, mkey_t k);
 
-// #define INCLUDE_MATTSCONTS_MAP // NOTE: DEV
+#define INCLUDE_MATTSCONTS_MAP // NOTE: DEV
 #ifdef INCLUDE_MATTSCONTS_MAP
 
 unsigned long hsh_(mkey_t k) {
@@ -56,7 +61,8 @@ void map_free(MapStore *s) { s->vtable->free(s); }
 size_t map_size(MapStore *s) { return s->vtable->size(s); }
 int map_put(MapStore *s, mkey_t k, mval_t v) { return s->vtable->put(s, k, v); }
 mval_t map_get(MapStore *s, mkey_t k) { return s->vtable->get(s, k); }
-// ...
+bool map_has(MapStore *s, mkey_t k) { return s->vtable->has(s, k); }
+void map_remove(MapStore *s, mkey_t k) { return s->vtable->remove(s, k); }
 
 #endif // INCLUDE_MATTSCONTS_MAP
 #endif // MATTSCONTS_MAP_API_H

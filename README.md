@@ -6,9 +6,21 @@
 
 - Check how many items they can hold
 
-## Demos
+### Running tests
 
-### Array
+```sh
+# To run a single test file and filter tests
+ARGS="--filter=<suite>.<test_name_pattern>" make cleanrun/tests/<test_target>
+
+# eg:
+ARGS="--filter=map.put*" make cleanrun/tests/map_htsc_tests
+```
+
+## Example usage
+
+<!-- TODO: test demos in code -->
+
+### Sequence
 
 How basic usage:
 
@@ -16,22 +28,41 @@ How basic usage:
 // main.c
 #define MC_ARR_T double
 #define INCLUDE_MATTSCONTS_ARR
-#include "mattsconts/array.h"
+#include "mattsconts/sequence.h"
+
+/*
+C++ sequence containers API
+
+c.size(); c.empty(); c.clear();
+c.begin(); c.end();              // iterators (also cbegin/rbegin/...)
+c.front();                       // first element (all)
+c.back();                        // last element (all except forward_list)
+c.insert(pos, x); c.erase(pos);  // by iterator
+c.emplace(pos, args...);         // construct in place
+c.swap(other);
+
+NOTE: add in warning when using non performant method on data type
+*/
 
 void main() {
-    // init_arr() ->        dynamic array
-    // init_arr_bst() ->    BST
-    // init_arr_sll() ->    singly linked list
-    // init_arr_dll() ->    doubly linked list
-    ArrayStore *s = init_arr_ll();
+    // init_seq_arr() ->    dynamic array
+    // init_seq_bst() ->    BST
+    // init_seq_sll() ->    singly linked list
+    // init_seq_dll() ->    doubly linked list
+    SeqStore *s = init_seq_arr();
 
-    arr_append(s, 4.0);
-    arr_prepend(s, 6.0);
-    arr_t x1 = arr_get(s, 2); // get by index (-n to get from end)
-    arr_put(s, 0, 3.0);
-    arr_remove(s, 4); // remove by idx
-    arr_t x2 = arr_pop(s);
+    seq_append(s, 4.0);
+    seq_prepend(s, 6.0);
+    seq_t x1 = arr_get(s, 2); // get by index (-n to get from end)
+    seq_put(s, 0, 3.0);
+    seq_remove(s, 4); // remove by idx
+    seq_t x2 = arr_pop(s);
 
+    // seq_from
+    int numbers[] = {1, 2, 3, 4};
+    SeqStore *s2 = init_seq_from(&numbers, 4);
+
+    arr_free(s2);
     arr_free(s);
     return 0;
 }
@@ -63,9 +94,10 @@ int main() {
     map_remove(s, 4);
 
     // get keys or values
-    mkey_t keys[s->size]; // NOTE: best way to do this?
+    size_t N = map_size(s);
+    mkey_t keys[N]; // NOTE: best way?
     map_keys(s, &keys);
-    mval_t vals[s->size];
+    mval_t vals[N];
     map_vlas(s, &vals);
 
     // iterator
@@ -75,6 +107,11 @@ int main() {
         it.val;
     }
 
+    unsigned long keys[] = {1, 2, 3, 4};
+    double values[] = {11.0, 9.0, 7.0, 5.0};
+    MapStore *s2 = init_map_from(&keys, &values, 4);
+
+    map_free(s2);
     map_free(s);
     return 0;
 }
