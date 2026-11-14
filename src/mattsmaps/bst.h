@@ -26,7 +26,7 @@ typedef struct BSTNode {
 // Library
 // ===============================================
 
-// #define INCLUDE_MATTSMAPS_BST // NOTE : dev
+#define INCLUDE_MATTSMAPS_BST // NOTE : dev
 #ifdef INCLUDE_MATTSMAPS_BST
 
 #include <stdio.h>

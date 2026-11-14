@@ -7,13 +7,12 @@ MapStore *init_map_bst();
 
 #endif // MATTSCONTS_MAP_BST_H
 
-// #define INCLUDE_MATTSCONTS_MAP // NOTE: DEV
+#define INCLUDE_MATTSCONTS_MAP // NOTE: DEV
 #ifdef INCLUDE_MATTSCONTS_MAP
 
 #include <stddef.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include <string.h>
 
 typedef struct bst_node_ {
     int key;
@@ -24,7 +23,7 @@ typedef struct {
     MapStore base;
     size_t size;
     BSTNode *root;
-} BSTStore;
+} BSTMapStore;
 
 // ===============================================
 // Helpers
@@ -34,14 +33,14 @@ typedef struct {
 // Methods
 // ===============================================
 
-void map_put_bst(void *s_, mkey_t k, mval_t v) {
-    BSTStore *s = s_;
+int map_put_bst(void *s_, mkey_t k, mval_t v) {
+    BSTMapStore *s = s_;
     printf("in map_put_bst\n");
-    return;
+    return 0;
 }
 
 mval_t map_get_bst(void *s_, mkey_t k) {
-    BSTStore *s = s_;
+    BSTMapStore *s = s_;
     printf("in map_get_bst\n");
     return 0;
 }
@@ -55,15 +54,8 @@ MapStore *init_map_bst() {
         .put = &map_put_bst,
         .get = &map_get_bst,
     };
-    static const MapStore base = {
-        .vtable = &vtable,
-    };
-    BSTStore *store = malloc(sizeof(BSTStore));
-    if (!store) {
-        return NULL;
-    }
-    store->root = NULL; // TODO: implement
-    memcpy(&store->base, &base, sizeof(base));
+    BSTMapStore *store = calloc(1, sizeof(BSTMapStore));
+    store->base.vtable = &vtable;
     return &store->base;
 }
 
